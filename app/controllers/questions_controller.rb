@@ -1,6 +1,6 @@
 class QuestionsController < ApplicationController
   def index
-    questions = Question.all
+    questions = Question.public_questions
     render json: questions
   end
 end
