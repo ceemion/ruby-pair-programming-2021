@@ -5,7 +5,8 @@ RSpec.describe QuestionsController, type: :controller do
 
   describe ".index" do
     before do
-      Question.create(title: "A question", is_private: true, user_id: user.id)
+      Question.create(title: "A question", is_private: false, user_id: user.id)
+      Question.create(title: "A second question", is_private: true, user_id: user.id)
     end
 
     it "returns 200" do
@@ -13,20 +14,21 @@ RSpec.describe QuestionsController, type: :controller do
       expect(response).to have_http_status(:ok)
     end
 
-    it "returns all questions" do
+    it "returns all public questions" do
       get :index
       response_body = JSON.parse(response.body)
 
-      expect(response_body[0]['title']).to eq("A question")
-      expect(response_body[0]['is_private']).to be true
-      expect(response_body[0]['user_id']).not_to be nil
+      expect(response_body.size).to eq(1)
+      expect(response_body.dig(0, 'title')).to eq("A question")
+      expect(response_body.dig(0, 'is_private')).to be false
+      expect(response_body.dig(0, 'user', 'id')).not_to be nil
     end
 
     it "returns questions for the same user" do
       get :index
       response_body = JSON.parse(response.body)
 
-      expect(response_body[0]['user_id']).to eq(user.id)
+      expect(response_body.dig(0, 'user', 'id')).to eq(user.id)
     end
   end
 end
